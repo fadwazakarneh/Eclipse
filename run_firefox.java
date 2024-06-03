@@ -31,13 +31,13 @@ public class run_firefox {
             System.out.println("Opened Facebook login page");
 
             // Locate the email input field and enter an email address
-            WebElement emailField = driver.findElement(By.id("email"));
+            WebElement emailField = driver.findElement(By.xpath("//input[@id='email']"));
             emailField.sendKeys("fadwa.zakarneh21@gmail.com");
             assertTrue(emailField.getAttribute("value").equals("fadwa.zakarneh21@gmail.com"));
             System.out.println("Entered email");
 
             // Locate the password input field and enter a password
-            WebElement passwordField = driver.findElement(By.id("pass"));
+            WebElement passwordField = driver.findElement(By.xpath("//input[@id='pass']"));
             passwordField.sendKeys("333555888");
             assertTrue(passwordField.getAttribute("value").equals("333555888"));
             System.out.println("Entered password");
@@ -46,39 +46,41 @@ public class run_firefox {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             
             // Locate the eye icon to show/hide password
-            WebElement eyeIcon = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[role='button'] ._9lsa ._9lsb._9ls8")));
+            WebElement eyeIcon = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@role='button']//div[@class='_9lsa']")));
             eyeIcon.click();
             System.out.println("Clicked eye icon to show/hide password");
 
             // Locate the sign-in button and click it
-            WebElement loginButton = driver.findElement(By.name("login"));
+            WebElement loginButton = driver.findElement(By.xpath("//button[@name='login']"));
             loginButton.click();
             System.out.println("Clicked login button");
 
             // Wait for the forgot password link and click it
-            WebElement forgotPasswordLink = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Forgot password?")));
+            WebElement forgotPasswordLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Forgot password?')]")));
             forgotPasswordLink.click();
             System.out.println("Clicked forgot password link");
 
             // Locate the "Create New Account" button using the button's attributes and click it
-            WebElement createAccountButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[data-testid='open-registration-form-button']")));
+            WebElement createAccountButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@data-testid='open-registration-form-button']")));
             createAccountButton.click();
             System.out.println("Clicked create new account button");
 
             // Wait until the registration form is loaded
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("reg_email__")));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='reg_email__']")));
             System.out.println("Registration form loaded");
 
             // Add sleep to ensure you can see the form
             Thread.sleep(5000); // Wait for 5 seconds
 
             // Click the "Create a Page" link using CSS selector
-            WebElement createPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a._8esh[href='/pages/create/?ref_type=registration_form']")));
+           WebElement createPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@class='_8esh' and @href='/pages/create/?ref_type=registration_form']")));
             createPageLink.click();
-            System.out.println("Clicked 'Create a Page' link");
-
+           System.out.println("Clicked 'Create a Page' link");
+            
             // Add sleep to ensure you can see the result of clicking the link
             Thread.sleep(5000); // Wait for 5 seconds
+            
+         
 
             // Create a Scanner object to wait for user input
             Scanner scanner = new Scanner(System.in);

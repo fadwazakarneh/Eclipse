@@ -9,61 +9,50 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.NoSuchElementException;
 import java.time.Duration;
+import java.util.Properties;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.Scanner;
 import static org.junit.Assert.assertTrue;
 
 public class run_firefox {
 
     public static void main(String[] args) {
+        Properties config = new Properties();
+        try (InputStream input = run_firefox.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) {
+                System.out.println("Sorry, unable to find config.properties");
+                return;
+            }
+            config.load(input);
+        } catch (IOException e) {
+            System.out.println("Unable to load config file: " + e.getMessage());
+            return;
+        }
+
         // Set the path to the geckodriver executable
-        System.setProperty("webdriver.gecko.driver", "C:\\Users\\areej\\eclipse-workspace\\myapp\\Drivers\\geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", config.getProperty("geckoDriverPath"));
 
         // Specify the path to the Firefox binary
         FirefoxOptions options = new FirefoxOptions();
-        options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe"); // Adjust this path if necessary
+        options.setBinary(config.getProperty("firefoxBinaryPath")); // Adjust this path if necessary
 
         // Initialize Firefox driver with options
         WebDriver driver = new FirefoxDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         try {
             // Open the URL
             driver.get("https://www.facebook.com/");
             System.out.println("Opened Facebook login page");
 
-            // Locate the email input field and enter an email address
-            WebElement emailField = driver.findElement(By.xpath("//input[@id='email']"));
-            emailField.sendKeys("fadwa.zakarneh21@gmail.com");
-            assertTrue(emailField.getAttribute("value").equals("fadwa.zakarneh21@gmail.com"));
-            System.out.println("Entered email");
+            enterText(driver, By.xpath("//input[@id='email']"), config.getProperty("email"));
+            enterText(driver, By.xpath("//input[@id='pass']"), config.getProperty("password"));
 
-            // Locate the password input field and enter a password
-            WebElement passwordField = driver.findElement(By.xpath("//input[@id='pass']"));
-            passwordField.sendKeys("333555888");
-            assertTrue(passwordField.getAttribute("value").equals("333555888"));
-            System.out.println("Entered password");
-
-            // Initialize WebDriverWait
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            
-            // Locate the eye icon to show/hide password
-            WebElement eyeIcon = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@role='button']//div[@class='_9lsa']")));
-            eyeIcon.click();
-            System.out.println("Clicked eye icon to show/hide password");
-
-            // Locate the sign-in button and click it
-            WebElement loginButton = driver.findElement(By.xpath("//button[@name='login']"));
-            loginButton.click();
-            System.out.println("Clicked login button");
-
-            // Wait for the forgot password link and click it
-            WebElement forgotPasswordLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Forgot password?')]")));
-            forgotPasswordLink.click();
-            System.out.println("Clicked forgot password link");
-
-            // Locate the "Create New Account" button using the button's attributes and click it
-            WebElement createAccountButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@data-testid='open-registration-form-button']")));
-            createAccountButton.click();
-            System.out.println("Clicked create new account button");
+            clickElement(wait, By.xpath("//a[@role='button']//div[@class='_9lsa']"));
+            clickElement(driver, By.xpath("//button[@name='login']"));
+            clickElement(wait, By.xpath("//a[contains(text(),'Forgot password?')]"));
+            clickElement(wait, By.xpath("//a[@data-testid='open-registration-form-button']"));
 
             // Wait until the registration form is loaded
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@name='reg_email__']")));
@@ -72,15 +61,10 @@ public class run_firefox {
             // Add sleep to ensure you can see the form
             Thread.sleep(5000); // Wait for 5 seconds
 
-            // Click the "Create a Page" link using CSS selector
-           WebElement createPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@class='_8esh' and @href='/pages/create/?ref_type=registration_form']")));
-            createPageLink.click();
-           System.out.println("Clicked 'Create a Page' link");
-            
+            clickElement(wait, By.xpath("//a[@class='_8esh' and @href='/pages/create/?ref_type=registration_form']"));
+
             // Add sleep to ensure you can see the result of clicking the link
             Thread.sleep(5000); // Wait for 5 seconds
-            
-         
 
             // Create a Scanner object to wait for user input
             Scanner scanner = new Scanner(System.in);
@@ -93,10 +77,43 @@ public class run_firefox {
             System.out.println("An element was not found: " + e.getMessage());
         } catch (InterruptedException e) {
             System.out.println("Thread was interrupted: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         } finally {
             // Close the browser
             driver.quit();
             System.out.println("Closed the browser");
+        }
+    }
+
+    private static void enterText(WebDriver driver, By by, String text) {
+        try {
+            WebElement element = driver.findElement(by);
+            element.sendKeys(text);
+            assertTrue(element.getAttribute("value").equals(text));
+            System.out.println("Entered text: " + text);
+        } catch (NoSuchElementException e) {
+            System.out.println("Failed to locate element to enter text: " + e.getMessage());
+        }
+    }
+
+    private static void clickElement(WebDriverWait wait, By by) {
+        try {
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(by));
+            element.click();
+            System.out.println("Clicked element: " + by);
+        } catch (NoSuchElementException e) {
+            System.out.println("Failed to locate element to click: " + e.getMessage());
+        }
+    }
+
+    private static void clickElement(WebDriver driver, By by) {
+        try {
+            WebElement element = driver.findElement(by);
+            element.click();
+            System.out.println("Clicked element: " + by);
+        } catch (NoSuchElementException e) {
+            System.out.println("Failed to locate element to click: " + e.getMessage());
         }
     }
 }
